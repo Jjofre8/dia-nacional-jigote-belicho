@@ -1,11 +1,14 @@
-
+﻿
 import FormularioAdhesion from "@/components/adhesiones/FormularioAdhesion";
 import Link from "next/link";
 
+// @next-codemod-ignore Cache Components adoption: this segment temporarily allows blocking.
+// Remove this opt-out after verifying the segment passes validation without it.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#faf7f0] text-[#382b22]">
-      {/* Navegación */}
+      {/* NavegaciÃ³n */}
       <header className="border-b border-[#e8dccb] bg-white">
         <nav className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-5">
           <Link href="/" className="text-xl font-extrabold text-[#91482d]">
@@ -148,7 +151,7 @@ export default function HomePage() {
 
       </section>
 
-      {/* Pie de página */}
+      {/* Pie de pÃ¡gina */}
       <footer className="bg-[#382b22] px-6 py-8 text-center text-sm text-white">
         <p className="font-bold">
           Día Nacional del Jigote Belicho
@@ -163,3 +166,4 @@ export default function HomePage() {
     </main>
   );
 }
+

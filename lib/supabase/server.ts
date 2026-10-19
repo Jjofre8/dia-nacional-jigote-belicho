@@ -1,13 +1,13 @@
 
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import {
+  createServerClient,
+  type CookieOptions,
+} from "@supabase/ssr";
+
 import { cookies } from "next/headers";
 
-/**
- * Cliente Supabase del servidor.
- * Utiliza las credenciales del proyecto Jigote Belicho.
- */
-export function createClient() {
-  const cookieStore = cookies();
+export async function createClient() {
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,19 +17,36 @@ export function createClient() {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        set(name: string, value: string, options: CookieOptions) {
+
+        set(
+          name: string,
+          value: string,
+          options: CookieOptions
+        ) {
           try {
-            cookieStore.set({ name, value, ...options });
+            cookieStore.set({
+              name,
+              value,
+              ...options,
+            });
           } catch {
-            // Los Server Components no siempre permiten
-            // modificar cookies.
+            // En Server Components las cookies
+            // no siempre pueden modificarse.
           }
         },
-        remove(name: string, options: CookieOptions) {
+
+        remove(
+          name: string,
+          options: CookieOptions
+        ) {
           try {
-            cookieStore.set({ name, value: "", ...options });
+            cookieStore.set({
+              name,
+              value: "",
+              ...options,
+            });
           } catch {
-            // La sesión se actualizará desde middleware.
+            // La sesión se gestiona desde proxy.ts.
           }
         },
       },

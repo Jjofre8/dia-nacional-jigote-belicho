@@ -1,5 +1,8 @@
-import AdminLogin from "@/components/admin/AdminLogin";
+﻿import AdminLogin from "@/components/admin/AdminLogin";
 
+// @next-codemod-ignore Cache Components adoption: this segment temporarily allows blocking.
+// Remove this opt-out after verifying the segment passes validation without it.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
 export default function AdminLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-ink-900 px-4 print-lines-bg">
@@ -7,3 +10,4 @@ export default function AdminLoginPage() {
     </div>
   );
 }
+

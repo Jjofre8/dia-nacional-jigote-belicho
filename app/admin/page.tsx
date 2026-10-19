@@ -1,7 +1,10 @@
-
+﻿
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+// @next-codemod-ignore Cache Components adoption: this segment temporarily allows blocking.
+// Remove this opt-out after verifying the segment passes validation without it.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
 export const dynamic = "force-dynamic";
 
 type Adhesion = {
@@ -14,7 +17,9 @@ type Adhesion = {
 };
 
 export default async function AdminPage() {
-  const supabase = createClient();
+  
+const supabase = await createClient();
+
 
   // Verificar identidad.
   const {
@@ -52,7 +57,7 @@ export default async function AdminPage() {
 
   const adhesiones = (data ?? []) as Adhesion[];
 
-  // Estadísticas globales, calculadas en Supabase.
+  // EstadÃ­sticas globales, calculadas en Supabase.
   const [totalResult, aprobadasResult, pendientesResult] =
     await Promise.all([
       supabase
@@ -211,3 +216,4 @@ export default async function AdminPage() {
     </main>
   );
 }
+

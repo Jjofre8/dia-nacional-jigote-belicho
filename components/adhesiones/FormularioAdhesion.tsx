@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import FirmaDigital from "./FirmaDigital";
+import VerificacionTurnstile from "./VerificacionTurnstile";
 
 const provincias = [
   "Buenos Aires",
@@ -40,6 +41,8 @@ export default function FormularioAdhesion() {
   const [firma, setFirma] = useState<string | null>(null);
   const [aceptaProyecto, setAceptaProyecto] = useState(false);
   const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false);
+  const [turnstileToken, setTurnstileToken] =
+  useState<string | null>(null);
 
   const formularioCompleto =
     nombre.trim().length >= 2 &&
@@ -50,6 +53,8 @@ export default function FormularioAdhesion() {
     firma !== null &&
     aceptaProyecto &&
     aceptaPrivacidad;
+    turnstileToken !== null;
+    
 
   return (
     <div className="mx-auto max-w-2xl rounded-2xl bg-white p-6 shadow-lg md:p-10">
@@ -194,6 +199,11 @@ export default function FormularioAdhesion() {
             </span>
           </label>
         </div>
+        
+        <VerificacionTurnstile
+          onVerify={setTurnstileToken}
+        />
+
 
         <button
           type="submit"

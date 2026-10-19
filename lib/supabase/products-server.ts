@@ -6,7 +6,7 @@ import type { Product } from "@/types/product";
  * Esta función se ejecuta exclusivamente en el servidor.
  */
 export async function getActiveProducts(): Promise<Product[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("products")
