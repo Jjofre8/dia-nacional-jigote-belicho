@@ -1,15 +1,15 @@
+
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { Database } from "@/types/product";
 
 /**
- * Cliente de Supabase para usar en Server Components, Server Actions y
- * Route Handlers. Lee/escribe la sesión desde las cookies de Next.js.
+ * Cliente Supabase del servidor.
+ * Utiliza las credenciales del proyecto Jigote Belicho.
  */
 export function createClient() {
   const cookieStore = cookies();
 
-  return createServerClient<Database>(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -21,15 +21,15 @@ export function createClient() {
           try {
             cookieStore.set({ name, value, ...options });
           } catch {
-            // Se puede ignorar si se llama desde un Server Component:
-            // el middleware ya se encarga de refrescar la sesión.
+            // Los Server Components no siempre permiten
+            // modificar cookies.
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: "", ...options });
           } catch {
-            // Idem arriba.
+            // La sesión se actualizará desde middleware.
           }
         },
       },

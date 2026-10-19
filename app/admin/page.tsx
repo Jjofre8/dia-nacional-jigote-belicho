@@ -1,112 +1,213 @@
-"use client";
 
-import { useEffect, useState } from "react";
-import type { Product, ProductInput } from "@/types/product";
-import AdminLayout from "@/components/admin/AdminLayout";
-import ProductForm from "@/components/admin/ProductForm";
-import ProductTable from "@/components/admin/ProductTable";
-import {
-  getAllProductsClient,
-  createProduct,
-  updateProduct,
-  toggleProductActive,
-  deleteProduct,
-} from "@/lib/supabase/products";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
-export default function AdminPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+export const dynamic = "force-dynamic";
 
-  const loadProducts = async () => {
-    setLoading(true);
-    try {
-      const data = await getAllProductsClient();
-      setProducts(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+type Adhesion = {
+  id: string;
+  nombre: string;
+  apellido: string;
+  provincia: string;
+  estado: string;
+  fecha_adhesion: string;
+};
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
+export default async function AdminPage() {
+  const supabase = createClient();
 
-  const handleCreateNew = () => {
-    setEditingProduct(null);
-    setShowForm(true);
-  };
+  // Verificar identidad.
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  const handleEdit = (product: Product) => {
-    setEditingProduct(product);
-    setShowForm(true);
-  };
+  if (authError || !user) {
+    redirect("/admin/login");
+  }
 
-  const handleSubmit = async (input: ProductInput) => {
-    if (editingProduct) {
-      await updateProduct(editingProduct.id, input);
-    } else {
-      await createProduct(input);
-    }
-    setShowForm(false);
-    setEditingProduct(null);
-    await loadProducts();
-  };
+  // Verificar que tenga permisos administrativos.
+  const { data: admin, error: adminError } = await supabase
+    .from("administradores")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-  const handleToggleActive = async (product: Product) => {
-    await toggleProductActive(product.id, !product.active);
-    await loadProducts();
-  };
+  if (adminError || !admin) {
+    redirect("/");
+  }
 
-  const handleDelete = async (product: Product) => {
-    await deleteProduct(product.id);
-    await loadProducts();
-  };
+  // Consultar adhesiones.
+  const { data, error } = await supabase
+    .from("adhesiones")
+    .select(
+      "id, nombre, apellido, provincia, estado, fecha_adhesion"
+    )
+    .order("fecha_adhesion", { ascending: false })
+    .limit(100);
+
+  if (error) {
+    console.error("Error al consultar adhesiones:", error.message);
+  }
+
+  const adhesiones = (data ?? []) as Adhesion[];
+
+  // Estadísticas globales, calculadas en Supabase.
+  const [totalResult, aprobadasResult, pendientesResult] =
+    await Promise.all([
+      supabase
+        .from("adhesiones")
+        .select("*", { count: "exact", head: true }),
+
+      supabase
+        .from("adhesiones")
+        .select("*", { count: "exact", head: true })
+        .eq("estado", "aprobada"),
+
+      supabase
+        .from("adhesiones")
+        .select("*", { count: "exact", head: true })
+        .eq("estado", "pendiente"),
+    ]);
+
+  const estadisticasConError = [
+    totalResult,
+    aprobadasResult,
+    pendientesResult,
+  ].some((resultado) => resultado.error);
+
+  const total = totalResult.count ?? 0;
+  const aprobadas = aprobadasResult.count ?? 0;
+  const pendientes = pendientesResult.count ?? 0;
+
+  const progreso = Math.min(
+    (aprobadas / 1500) * 100,
+    100
+  );
 
   return (
-    <AdminLayout>
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-ink-900">
-            Productos
-          </h1>
-          <p className="text-sm text-ink-700/70">
-            Creá, editá, ocultá o eliminá productos del catálogo.
+    <main className="min-h-screen bg-[#faf7f0] p-6 text-[#382b22]">
+      <div className="mx-auto max-w-6xl">
+        <header className="mb-10">
+          <p className="text-sm font-bold uppercase tracking-wider text-[#91482d]">
+            Administración
           </p>
-        </div>
 
-        {!showForm && (
-          <button
-            onClick={handleCreateNew}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-lima-500 px-6 py-3 text-sm font-bold text-ink-900 shadow-soft transition-transform hover:-translate-y-0.5 hover:bg-lima-400"
-          >
-            + Nuevo producto
-          </button>
-        )}
+          <h1 className="mt-2 text-3xl font-extrabold">
+            Día Nacional del Jigote Belicho
+          </h1>
+
+          <p className="mt-3 text-gray-600">
+            Gestión de adhesiones ciudadanas.
+          </p>
+        </header>
+
+        {error || estadisticasConError ? (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
+            No se pudieron consultar todos los datos.
+            Revisá la conexión y los permisos de Supabase.
+          </div>
+        ) : null}
+
+        <section className="grid gap-5 md:grid-cols-3">
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm text-gray-500">
+              Adhesiones registradas
+            </p>
+            <h2 className="mt-3 text-4xl font-bold">
+              {total}
+            </h2>
+          </div>
+
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm text-gray-500">
+              Adhesiones aprobadas
+            </p>
+            <h2 className="mt-3 text-4xl font-bold">
+              {aprobadas}
+            </h2>
+          </div>
+
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm text-gray-500">
+              Adhesiones pendientes
+            </p>
+            <h2 className="mt-3 text-4xl font-bold">
+              {pendientes}
+            </h2>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-xl bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold">
+            Objetivo: 1.500 adhesiones
+          </h2>
+
+          <div className="mt-5 h-4 overflow-hidden rounded-full bg-[#e8dccb]">
+            <div
+              className="h-full rounded-full bg-[#91482d]"
+              style={{ width: `${progreso}%` }}
+            />
+          </div>
+
+          <p className="mt-3 text-sm text-gray-600">
+            {aprobadas} de 1.500 adhesiones aprobadas
+            ({progreso.toFixed(1)}%)
+          </p>
+        </section>
+
+        <section className="mt-8 overflow-hidden rounded-xl bg-white shadow-sm">
+          <div className="border-b p-6">
+            <h2 className="text-xl font-bold">
+              Últimas adhesiones
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Se muestran hasta 100 registros recientes.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-[#efe4d4]">
+                <tr>
+                  <th className="p-4">Nombre</th>
+                  <th className="p-4">Apellido</th>
+                  <th className="p-4">Provincia</th>
+                  <th className="p-4">Estado</th>
+                  <th className="p-4">Fecha</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {adhesiones.map((adhesion) => (
+                  <tr
+                    key={adhesion.id}
+                    className="border-t"
+                  >
+                    <td className="p-4">{adhesion.nombre}</td>
+                    <td className="p-4">{adhesion.apellido}</td>
+                    <td className="p-4">{adhesion.provincia}</td>
+                    <td className="p-4">{adhesion.estado}</td>
+                    <td className="p-4">
+                      {new Date(
+                        adhesion.fecha_adhesion
+                      ).toLocaleDateString("es-AR", {
+                        timeZone: "America/Argentina/Buenos_Aires",
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {adhesiones.length === 0 && !error && (
+            <p className="p-6 text-center text-gray-500">
+              Todavía no hay adhesiones registradas.
+            </p>
+          )}
+        </section>
       </div>
-
-      {showForm ? (
-        <ProductForm
-          initialProduct={editingProduct}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingProduct(null);
-          }}
-        />
-      ) : loading ? (
-        <p className="text-ink-700/60">Cargando productos...</p>
-      ) : (
-        <ProductTable
-          products={products}
-          onEdit={handleEdit}
-          onToggleActive={handleToggleActive}
-          onDelete={handleDelete}
-        />
-      )}
-    </AdminLayout>
+    </main>
   );
 }

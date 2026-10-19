@@ -1,11 +1,14 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
 
-/**
- * Protege todas las rutas /admin (excepto /admin/login).
- * Si el visitante no tiene sesión de Supabase activa, se lo redirige
- * al login del panel.
- */
+import {
+  createServerClient,
+  type CookieOptions,
+} from "@supabase/ssr";
+
+import {
+  NextResponse,
+  type NextRequest,
+} from "next/server";
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
     request: { headers: request.headers },
@@ -20,30 +23,52 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({ name, value, ...options });
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          });
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
+          request.cookies.set(name, "");
           response.cookies.set({ name, value: "", ...options });
         },
       },
     }
   );
 
+  const pathname = request.nextUrl.pathname;
+  const isLogin = pathname === "/admin/login";
+
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  const isLoginRoute = request.nextUrl.pathname === "/admin/login";
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
+  if (authError || !user) {
+    if (isLogin) return response;
 
-  if (isAdminRoute && !isLoginRoute && !session) {
-    const loginUrl = new URL("/admin/login", request.url);
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(
+      new URL("/admin/login", request.url)
+    );
   }
 
-  if (isLoginRoute && session) {
-    const adminUrl = new URL("/admin", request.url);
-    return NextResponse.redirect(adminUrl);
+  const { data: admin, error: adminError } = await supabase
+    .from("administradores")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (adminError || !admin) {
+    return NextResponse.redirect(
+      new URL("/", request.url)
+    );
+  }
+
+  if (isLogin) {
+    return NextResponse.redirect(
+      new URL("/admin", request.url)
+    );
   }
 
   return response;
