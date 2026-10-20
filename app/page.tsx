@@ -152,16 +152,47 @@ export default function HomePage() {
       </section>
 
       {/* Pie de pÃ¡gina */}
-      <footer className="bg-[#382b22] px-6 py-8 text-center text-sm text-white">
-        <p className="font-bold">
-          Día Nacional del Jigote Belicho
+      
+      <footer className="bg-[#382b22] px-4 py-4 text-center text-xs text-white">
+        <p className="font-semibold">
+          © 2026 Día Nacional del Jigote Belicho
         </p>
-        <p className="mt-2 text-[#dec9b6]">
+
+        <p className="mt-1 text-[#dec9b6]">
           Belén, Catamarca, Argentina
         </p>
-        <p className="mt-3 text-[#dec9b6]">
-          Iniciativa cultural para la preservación de nuestras tradiciones.
+
+        <p className="mt-2 text-[#dec9b6]">
+          Diseño y desarrollo web por{" "}
+          <span className="font-semibold text-white">
+            Julián Zalazar Jofré
+          </span>
         </p>
+
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+          <a
+            href="https://wa.me/5493835412996"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#dec9b6] hover:text-white hover:underline"
+          >
+            WhatsApp
+          </a>
+
+          <a
+            href="mailto:julianzetajota@gmail.com"
+            className="text-[#dec9b6] hover:text-white hover:underline"
+          >
+            Correo electrónico
+          </a>
+
+          <a
+            href="/privacidad"
+            className="text-[#dec9b6] hover:text-white hover:underline"
+          >
+            Política de Privacidad
+          </a>
+        </div>
       </footer>
     </main>
   );
