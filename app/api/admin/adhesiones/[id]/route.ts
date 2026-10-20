@@ -13,16 +13,7 @@ export async function PATCH(
   { params }: Contexto
 ) {
   // Todavía estamos trabajando en desarrollo.
-  if (process.env.NODE_ENV !== "development") {
-    return NextResponse.json(
-      {
-        ok: false,
-        mensaje: "Actualizaciones no habilitadas.",
-      },
-      { status: 503 }
-    );
-  }
-
+  
   try {
     const supabase = await createClient();
 
