@@ -4,11 +4,19 @@ import "server-only";
 import { crearClienteAdmin } from "@/lib/supabase/admin";
 import type { DatosAdhesion } from "./validar";
 
+type TipoRegistro = "prueba" | "real";
+
 export async function guardarAdhesion(
   datos: DatosAdhesion,
-  rutaFirma: string
+  rutaFirma: string,
+  tipo: TipoRegistro = "prueba"
 ): Promise<string> {
   const supabase = crearClienteAdmin();
+
+  const versionProyecto =
+    tipo === "prueba"
+      ? "prueba-tecnica"
+      : "jigote-belicho-v1";
 
   const { data, error } = await supabase
     .from("adhesiones")
@@ -21,15 +29,16 @@ export async function guardarAdhesion(
       firma_path: rutaFirma,
       consentimiento: true,
       fecha_consentimiento: new Date().toISOString(),
-      version_proyecto: "jigote-belicho-v1",
+      version_proyecto: versionProyecto,
       estado: "pendiente",
     })
     .select("id")
     .single();
 
   if (error || !data) {
-    // No exponer errores internos de Supabase al visitante.
-    throw new Error("No se pudo registrar la adhesión.");
+    throw new Error(
+      "No se pudo registrar la adhesión."
+    );
   }
 
   return data.id;

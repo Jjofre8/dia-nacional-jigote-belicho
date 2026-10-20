@@ -2,6 +2,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+import AccionesAdhesion from "@/components/admin/AccionesAdhesion";
+
+
 // @next-codemod-ignore Cache Components adoption: this segment temporarily allows blocking.
 // Remove this opt-out after verifying the segment passes validation without it.
 // See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
@@ -180,6 +183,7 @@ const supabase = await createClient();
                   <th className="p-4">Provincia</th>
                   <th className="p-4">Estado</th>
                   <th className="p-4">Fecha</th>
+                  <th className="p-4">Acciones</th>
                 </tr>
               </thead>
 
@@ -200,6 +204,13 @@ const supabase = await createClient();
                         timeZone: "America/Argentina/Buenos_Aires",
                       })}
                     </td>
+                    <td className="p-4">
+                      <AccionesAdhesion
+                        id={adhesion.id}
+                        estado={adhesion.estado}
+                      />
+                    </td>
+
                   </tr>
                 ))}
               </tbody>
