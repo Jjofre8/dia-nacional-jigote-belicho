@@ -1,17 +1,23 @@
 ﻿
+
 import FormularioAdhesion from "@/components/adhesiones/FormularioAdhesion";
+import ContadorAdhesiones from "@/components/adhesiones/ContadorAdhesiones";
 import Link from "next/link";
 
-// @next-codemod-ignore Cache Components adoption: this segment temporarily allows blocking.
-// Remove this opt-out after verifying the segment passes validation without it.
-// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+// @next-codemod-ignore Cache Components adoption:
+// este segmento mantiene temporalmente la configuración actual.
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#faf7f0] text-[#382b22]">
-      {/* NavegaciÃ³n */}
+
+      {/* Navegación */}
       <header className="border-b border-[#e8dccb] bg-white">
         <nav className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-          <Link href="/" className="text-xl font-extrabold text-[#91482d]">
+          <Link
+            href="/"
+            className="text-xl font-extrabold text-[#91482d]"
+          >
             JIGOTE BELICHO
           </Link>
 
@@ -23,23 +29,29 @@ export default function HomePage() {
         </nav>
       </header>
 
-      {/* Portada */}
-      <section className="bg-gradient-to-br from-[#f4e2c9] to-[#faf7f0] px-6 py-24 text-center">
-        <div className="mx-auto max-w-4xl">
+      {/* Portada con imagen */}
+      <section
+        className="relative flex min-h-[560px] items-center justify-center bg-cover bg-center px-6 py-24 text-center"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(29, 20, 14, 0.65), rgba(29, 20, 14, 0.65)), url('/jigote-hero.png')",
+        }}
+      >
+        <div className="relative mx-auto max-w-4xl">
           <span className="rounded-full bg-[#91482d] px-5 py-2 text-sm font-semibold text-white">
             Belén · Catamarca · Argentina
           </span>
 
-          <h1 className="mt-8 text-4xl font-extrabold leading-tight text-[#793b25] md:text-6xl">
+          <h1 className="mt-8 text-4xl font-extrabold leading-tight text-white md:text-6xl">
             Día Nacional del Jigote Belicho
           </h1>
 
-          <p className="mt-6 text-xl text-[#63554b]">
+          <p className="mt-6 text-xl text-[#f5eadd]">
             Una tradición gastronómica que representa nuestra
             historia, nuestra cultura y nuestra identidad.
           </p>
 
-          <p className="mt-5 text-lg font-bold">
+          <p className="mt-5 text-lg font-bold text-white">
             Propuesta: 3 de enero de cada año
           </p>
 
@@ -47,7 +59,7 @@ export default function HomePage() {
             href="#adhesiones"
             className="mt-9 inline-block rounded-xl bg-[#91482d] px-8 py-4 font-bold text-white transition hover:bg-[#743820]"
           >
-            Conocer la iniciativa
+            Sumá tu adhesión
           </a>
         </div>
       </section>
@@ -76,7 +88,10 @@ export default function HomePage() {
       </section>
 
       {/* Proyecto */}
-      <section id="proyecto" className="bg-[#efe4d4] px-6 py-20">
+      <section
+        id="proyecto"
+        className="bg-[#efe4d4] px-6 py-20"
+      >
         <div className="mx-auto max-w-5xl">
           <h2 className="text-3xl font-extrabold text-[#793b25]">
             Proyecto de reconocimiento nacional
@@ -95,18 +110,31 @@ export default function HomePage() {
             </h3>
 
             <ul className="mt-4 list-disc space-y-3 pl-6">
-              <li>Reconocer su valor cultural y gastronómico.</li>
-              <li>Promover la preservación de las recetas tradicionales.</li>
-              <li>Difundir la identidad cultural de Belén.</li>
-              <li>Promover actividades educativas y culturales.</li>
-              <li>Reconocer a quienes mantienen viva la tradición.</li>
+              <li>
+                Reconocer su valor cultural y gastronómico.
+              </li>
+              <li>
+                Promover la preservación de las recetas tradicionales.
+              </li>
+              <li>
+                Difundir la identidad cultural de Belén.
+              </li>
+              <li>
+                Promover actividades educativas y culturales.
+              </li>
+              <li>
+                Reconocer a quienes mantienen viva la tradición.
+              </li>
             </ul>
           </div>
         </div>
       </section>
 
       {/* Adhesiones */}
-      <section id="adhesiones" className="px-6 py-24 text-center">
+      <section
+        id="adhesiones"
+        className="px-6 py-24 text-center"
+      >
         <div className="mx-auto max-w-4xl">
           <h2 className="text-3xl font-extrabold text-[#793b25]">
             Adhesiones ciudadanas
@@ -118,25 +146,8 @@ export default function HomePage() {
             propuesta cultural.
           </p>
 
-          <div className="mx-auto mt-10 max-w-xl rounded-2xl border border-[#e8dccb] bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-wider text-[#91482d]">
-              Nuestra primera meta
-            </p>
-
-            <p className="mt-4 text-6xl font-extrabold text-[#793b25]">
-              1.500
-            </p>
-
-            <p className="mt-3 text-lg">Adhesiones ciudadanas</p>
-
-            <div className="mt-7 h-4 overflow-hidden rounded-full bg-[#e8dccb]">
-              <div className="h-full w-0 bg-[#91482d]" />
-            </div>
-
-            <p className="mt-4 text-sm text-gray-500">
-              El registro de adhesiones estará disponible próximamente.
-            </p>
-          </div>
+          {/* Contador conectado a Supabase */}
+          <ContadorAdhesiones />
 
           <p className="mx-auto mt-8 max-w-2xl text-sm leading-6 text-gray-600">
             Las adhesiones ciudadanas no constituyen por sí
@@ -144,15 +155,14 @@ export default function HomePage() {
             a la Ley Nacional 24.747.
           </p>
         </div>
-        
+
+        {/* Formulario existente */}
         <div className="mt-12">
           <FormularioAdhesion />
         </div>
-
       </section>
 
-      {/* Pie de pÃ¡gina */}
-      
+      {/* Footer compacto */}
       <footer className="bg-[#382b22] px-4 py-4 text-center text-xs text-white">
         <p className="font-semibold">
           © 2026 Día Nacional del Jigote Belicho
@@ -197,4 +207,3 @@ export default function HomePage() {
     </main>
   );
 }
-
