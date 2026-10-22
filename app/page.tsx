@@ -23,7 +23,7 @@ export default function HomePage() {
 
           <div className="flex flex-wrap items-center gap-5 text-sm font-semibold">
             <a href="#historia">Historia</a>
-            <a href="#proyecto">Proyecto de ley</a>
+            <a href="#proyecto">Proyecto de Ley</a>
             <a href="#adhesiones">Adhesiones</a>
           </div>
         </nav>
